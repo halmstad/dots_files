@@ -235,7 +235,7 @@ au BufWritePost .vimrc so ~/.vimrc
 " bundle 插件管理和配置项
 "
 " package dependent:  ctags
-" python dependent:  pep8, pyflake
+" python dependent: flake8 
 "
 "==========================================
 
@@ -344,7 +344,6 @@ let g:SignatureMap = {
 
 "内容搜索
 Bundle 'dyng/ctrlsf.vim'
-"noremap <leader>bd :MBEbd<CR>
 let g:ctrlsf_ackprg = 'ack'
 nmap <leader>f <Plug>CtrlSFPrompt
 vmap <leader>f <Plug>CtrlSFVwordPath
