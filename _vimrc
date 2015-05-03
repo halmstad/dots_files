@@ -310,23 +310,23 @@ map <leader>te :tabedit <c-r>=expand("%:p:h")<cr>/
 "python dependent:  pep8, pyflake
 
 filetype off " required! turn off
-set rtp+=~/.vim/bundle/vundle/
-call vundle#rc()
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
 
 "################### 插件管理 ###################"
 ""
 
 "使用Vundle来管理Vundle
-Bundle 'gmarik/vundle'
+Plugin 'gmarik/Vundle.vim'
 
 "阅读hackernews
-Bundle 'ryanss/vim-hackernews'
+Plugin 'ryanss/vim-hackernews'
 
-Bundle 'ervandew/supertab'
+Plugin 'ervandew/supertab'
 let g:SuperTabDefaultCompletionType = '<C-n>'
 
 " youcompleteme 来补全ultisnips
-Bundle 'Valloric/YouCompleteMe'
+Plugin 'Valloric/YouCompleteMe'
 "imap <Tab> <C-P>
 " YCM 补全菜单配色
 " 菜单
@@ -356,7 +356,7 @@ let g:ycm_key_list_previous_completion = ['<Up>']
 
 
 " ultisnips补全
-Bundle 'SirVer/ultisnips'
+Plugin 'SirVer/ultisnips'
 " better key bindings for UltiSnipsExpandTrigger
 let g:UltiSnipsExpandTrigger = "<leader><tab>"
 let g:UltiSnipsJumpForwardTrigger = "<leader><leader><tab>"
@@ -367,7 +367,7 @@ let g:UltiSnipsSnippetDirectories=["UltiSnips/snippets"]
 
 "################### 导航 ###################"
 "目录导航
-Bundle 'scrooloose/nerdtree'
+Plugin 'scrooloose/nerdtree'
 map <leader>n :NERDTreeToggle<CR>
 map <F9> :NERDTreeToggle<CR>
 let NERDTreeHighlightCursorline=1
@@ -386,7 +386,7 @@ let NERDTreeMapMenu="<leader>m"
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | end
 
 "for minibufferexpl
-Bundle 'fholgado/minibufexpl.vim'
+Plugin 'fholgado/minibufexpl.vim'
 let g:miniBufExplMapWindowNavVim = 1
 let g:miniBufExplMapWindowNavArrows = 1
 let g:miniBufExplMapCTabSwitchBufs = 1
@@ -403,19 +403,19 @@ noremap <TAB><Right> :MBEbn<CR>
 noremap <Leader><C-w> :MBEbd<CR>
 
 "标签导航
-Bundle 'majutsushi/tagbar'
+Plugin 'majutsushi/tagbar'
 nmap <F8> :TagbarToggle<CR>
 let g:tagbar_autofocus = 1
 let g:tagbar_ctags_bin = '/usr/local/bin/ctags'
 let g:tagbar_show_linenumbers = 1
 
 " 对齐分隔线
-Bundle 'Yggdroot/indentLine'
+Plugin 'Yggdroot/indentLine'
 let g:indentLine_char = '┆'
 " let g:indentLine_char = '┊'
 
 "书签设置
-" Bundle 'kshenoy/vim-signature'
+" Plugin 'kshenoy/vim-signature'
 " let g:SignatureMap = {
 " 	\'Leader'             :  "m",
 "         \ 'DeleteMark'         :  "dm",
@@ -426,13 +426,13 @@ let g:indentLine_char = '┆'
 "         \ }
 
 " emmet for web developer, which was named zen-coding
-Bundle 'mattn/emmet-vim'
+Plugin 'mattn/emmet-vim'
 " let g:user_emmet_install_global = 0
 " autocmd FileType html,css EmmetInstall
 let g:user_emmet_leader_key='<Leader>'
 
 "内容搜索
-Bundle 'dyng/ctrlsf.vim'
+Plugin 'dyng/ctrlsf.vim'
 "noremap <leader>bd :MBEbd<CR>
 let g:ctrlsf_ackprg = 'ack'
 let g:ctrlsf_position = 'bottom'
@@ -442,7 +442,7 @@ nmap <leader>ff <Plug>CtrlSFCwordPath
 
 
 "for file search ctrlp, 文件搜索
-Bundle 'kien/ctrlp.vim'
+Plugin 'kien/ctrlp.vim'
 let g:ctrlp_map = '<leader>p'
 let g:ctrlp_cmd = 'CtrlP'
 map <leader>/ :CtrlPMRU<CR>
@@ -462,30 +462,30 @@ let g:ctrlp_follow_symlinks=1
 "################### 显示增强 ###################"
 
 "状态栏增强展示
-Bundle 'Lokaltog/vim-powerline'
+Plugin 'Lokaltog/vim-powerline'
 
 "for show no user whitespaces
-Bundle 'bronson/vim-trailing-whitespace'
+Plugin 'bronson/vim-trailing-whitespace'
 map <leader><space> :FixWhitespace<cr>
 
-Bundle 'Lokaltog/vim-easymotion'
+Plugin 'Lokaltog/vim-easymotion'
 
 "快速插入代码片段
 " 快速加入修改环绕字符
-Bundle 'tpope/vim-surround'
+Plugin 'tpope/vim-surround'
 "for repeat -> enhance surround.vim, . to repeat command
 let g:surround_{char2nr("d")} = "<div\1id: \r..*\r id=\"&\"\1>\r</tab>div>"
 
 "自动补全单引号，双引号等
-Bundle 'Raimondi/delimitMate'
+Plugin 'Raimondi/delimitMate'
 " for python docstring ",优化输入
 au FileType python let b:delimitMate_nesting_quotes = ['"']
 
 "################# 语法检查 ###############
 " Run pep8
-"Bundle 'vim-scripts/pep8'
+"Plugin 'vim-scripts/pep8'
 "let g:pep8_map='<leader>8'
-Bundle "nvie/vim-flake8"
+Plugin 'nvie/vim-flake8'
 let g:flake8_show_in_file=1
 let g:flake8_show_quickfix=0
 let g:flake8_max_line_length=72
@@ -495,7 +495,7 @@ highlight link Flake8_Complexity WarningMsg
 highlight link Flake8_Naming     WarningMsg
 highlight link Flake8_PyFlake    WarningMsg
 
-Bundle "scrooloose/syntastic"
+Plugin 'scrooloose/syntastic'
 let g:syntastic_python_checkers=['flake8']
 let g:syntastic_python_checker_args='--ignore=E501,E225'
 
@@ -503,28 +503,26 @@ let g:syntastic_python_checker_args='--ignore=E501,E225'
 "################# 具体语言语法高亮 ###############
 
 " for python.vim syntax highlight
-Bundle 'hdima/python-syntax'
+Plugin 'hdima/python-syntax'
 let python_highlight_all = 1
 
 " for docker file
-Bundle "ekalinin/Dockerfile.vim"
+Plugin 'ekalinin/Dockerfile.vim'
 
 " for markdown
-Bundle 'plasticboy/vim-markdown'
+Plugin 'plasticboy/vim-markdown'
 let g:vim_markdown_folding_disabled=1
 
 
 "for jquery
-Bundle 'nono/jquery.vim'
-
-"for nginx conf file highlight.   need to confirm it works
-Bundle 'thiderman/nginx-vim-syntax'
+Plugin 'nono/jquery.vim'
 
 "################### 其他 ###################"
 " task list
-Bundle 'vim-scripts/TaskList.vim'
+Plugin 'vim-scripts/TaskList.vim'
 map <leader>td <Plug>TaskList
 
+call vundle#end()
 
 "========================== config for plugins end ======================================
 
