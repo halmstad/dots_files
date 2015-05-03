@@ -12,6 +12,7 @@ ctags 用来预处理文件为tagbar调用做准备，flake8是检测 python 文
 ```
 yum install -y ctags
 pip install flake8
+git clone https://github.com/gmarik/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 ```
 ### bundle 处理 vim 依赖
 ```
