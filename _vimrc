@@ -150,8 +150,8 @@ set formatoptions+=B
 " FileType specific changes
 " ============================================================
 " Mako/HTML
-autocmd BufNewFile,BufRead *.mako,*.mak,*.jinja2 setlocal ft=html
-autocmd FileType html,xhtml,xml,css setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
+autocmd BufNewFile,BufRead *.mako,*.mak,*.jinja2, setlocal ft=html
+autocmd FileType yaml,htmldjango,html,xhtml,xml,css setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
 autocmd FileType javascript setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
 autocmd FileType javascript set omnifunc=javascriptcomplete#CompleteJS
 
@@ -160,9 +160,8 @@ autocmd FileType javascript set omnifunc=javascriptcomplete#CompleteJS
 autocmd FileType python set omnifunc=pythoncomplete#Complete
 autocmd FileType python setlocal expandtab shiftwidth=4 tabstop=4 softtabstop=4 cinwords=if,elif,else,for,while,try,except,finally,def,class,
 autocmd BufRead *.py set efm=%C\ %.%#,%A\ \ File\ \"%f\"\\,\ line\ %l%.%#,%Z%[%^\]%\\@=%m
-" Go
 
-
+autocmd BufNewFile,BufFilePre,BufRead *.md set filetype=markdown
 
 
 " Don't let pyflakes use the quickfix window
@@ -217,8 +216,8 @@ nmap <silent> <leader>ev :e $MYVIMRC<CR>
 nmap <silent> <leader>sv :so $MYVIMRC<CR>
 
 "翻页
-map <C-o> <C-b>
-map <C-p> <C-f>
+" map <C-o> <C-b>
+" map <C-p> <C-f>
 
 "Treat long lines as break lines (useful when moving around in them)
 "se swap之后，同物理行上线直接跳
@@ -233,9 +232,11 @@ map <C-l> <C-W>l
 
 "Short for vertical split
 map <leader>v :vs<CR>
-map <leader>V :vs<CR>
+map <leader>s :sp<CR>
 
-
+" Map ZZ and ZQ
+map zz ZZ
+map zq ZQ
 " Go to home and end using capitalized directions
 noremap <C-a> 0
 noremap <C-e> $
@@ -275,6 +276,10 @@ nmap T O<ESC>j
 
 " Quickly close the current window
 nnoremap <leader>q :q<CR>
+nnoremap <leader>qq :q!<CR>
+
+" Quickly Save
+nnoremap <leader>w :w<CR>
 
 " Swap implementations of ` and ' jump to markers
 " By default, ' jumps to the marked line, ` jumps to the marked line and
@@ -353,6 +358,8 @@ let g:ycm_cache_omnifunc=0
 let g:ycm_seed_identifiers_with_syntax=1
 let g:ycm_key_list_select_completion = ['<TAB>', '<Down>']
 let g:ycm_key_list_previous_completion = ['<Up>']
+" 跳转到定义 "
+nnoremap <leader>jd :YcmCompleter GoToDefinitionElseDeclaration<CR>
 
 
 " ultisnips补全
@@ -369,19 +376,19 @@ let g:UltiSnipsSnippetDirectories=["UltiSnips/snippets"]
 "目录导航
 Plugin 'scrooloose/nerdtree'
 map <leader>n :NERDTreeToggle<CR>
-map <F9> :NERDTreeToggle<CR>
+map <F8> :NERDTreeToggle<CR>
 let NERDTreeHighlightCursorline=1
 let NERDTreeIgnore=[ '\.pyc$', '\.pyo$', '\.obj$', '\.o$', '\.so$', '\.egg$', '^\.git$', '^\.svn$', '^\.hg$' ]
-let g:netrw_home='~/bak'
-" 设置NERDTree子窗口宽度
-let NERDTreeWinSize=32
-" 显示隐藏文件
-let NERDTreeShowHidden=1
-" NERDTree 子窗口中不显示冗余帮助信息
-let NERDTreeMinimalUI=1
-" 删除文件时自动删除文件对应 buffer
-let NERDTreeAutoDeleteBuffer=1
+let netrw_home='~/bak'
+
+let NERDTreeWinSize=32  " 设置NERDTree子窗口宽度
+let NERDTreeShowHidden=1  " 显示隐藏文件
+let NERDTreeMinimalUI=1  " NERDTree 子窗口中不显示冗余帮助信息
+let NERDTreeAutoDeleteBuffer=1 " 删除文件时自动删除文件对应 buffer
 let NERDTreeMapMenu="<leader>m"
+let NERDTreeChDirMode = 1
+let NERDTreeHijackNetrw = 1 " 当输入 [:e filename]不再显示netrw,而是显示 nerdtree"
+
 "close vim if the only window left open is a NERDTree
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | end
 
@@ -404,7 +411,7 @@ noremap <Leader><C-w> :MBEbd<CR>
 
 "标签导航
 Plugin 'majutsushi/tagbar'
-nmap <F8> :TagbarToggle<CR>
+nmap <F9> :TagbarToggle<CR>
 let g:tagbar_autofocus = 1
 let g:tagbar_ctags_bin = '/usr/local/bin/ctags'
 let g:tagbar_show_linenumbers = 1
@@ -427,8 +434,6 @@ let g:indentLine_char = '┆'
 
 " emmet for web developer, which was named zen-coding
 Plugin 'mattn/emmet-vim'
-" let g:user_emmet_install_global = 0
-" autocmd FileType html,css EmmetInstall
 let g:user_emmet_leader_key='<Leader>'
 
 "内容搜索
@@ -436,8 +441,6 @@ Plugin 'dyng/ctrlsf.vim'
 "noremap <leader>bd :MBEbd<CR>
 let g:ctrlsf_ackprg = 'ack'
 let g:ctrlsf_position = 'bottom'
-nmap <leader>f <Plug>CtrlSFPrompt
-vmap <leader>f <Plug>CtrlSFVwordPath
 nmap <leader>ff <Plug>CtrlSFCwordPath
 
 
@@ -445,6 +448,7 @@ nmap <leader>ff <Plug>CtrlSFCwordPath
 Plugin 'kien/ctrlp.vim'
 let g:ctrlp_map = '<leader>p'
 let g:ctrlp_cmd = 'CtrlP'
+let g:ctrlp_working_path_mode = 'rw'
 map <leader>/ :CtrlPMRU<CR>
 "set wildignore+=*/tmp/*,*.so,*.swp,*.zip     " MacOSX/Linux"
 let g:ctrlp_custom_ignore = {
@@ -468,18 +472,44 @@ Plugin 'Lokaltog/vim-powerline'
 Plugin 'bronson/vim-trailing-whitespace'
 map <leader><space> :FixWhitespace<cr>
 
+"easy motion
 Plugin 'Lokaltog/vim-easymotion'
+let g:EasyMotion_do_mapping = 0 " Disable default mappings"
+let g:EasyMotion_smartcase = 1
+map <Leader>f <Plug>(easymotion-s)
+map <Leader><Leader> <Plug>(easymotion-w)
+map <Leader>j <Plug>(easymotion-jumptoanywhere)
 
-"快速插入代码片段
+
+"vim multiple cursors
+Plugin 'terryma/vim-multiple-cursors'
+
 " 快速加入修改环绕字符
 Plugin 'tpope/vim-surround'
 "for repeat -> enhance surround.vim, . to repeat command
-let g:surround_{char2nr("d")} = "<div\1id: \r..*\r id=\"&\"\1>\r</tab>div>"
 
-"自动补全单引号，双引号等
+" 自动补全单引号，双引号等
 Plugin 'Raimondi/delimitMate'
 " for python docstring ",优化输入
 au FileType python let b:delimitMate_nesting_quotes = ['"']
+
+" evernote client helpers plugin
+
+Plugin 'neilagabriel/vim-geeknote'
+noremap <leader>gk :Geeknote<cr>
+
+
+"################ javascript ##############
+" 一键对齐
+Plugin 'maksimr/vim-jsbeautify'
+Plugin 'einars/js-beautify'
+
+autocmd FileType javascript noremap <buffer>  <Leader>t :call JsBeautify()<cr>
+" for html
+autocmd FileType html noremap <buffer> <Leader>t :call HtmlBeautify()<cr>
+" for css or scss
+autocmd FileType css noremap <buffer> <Leader>t :call CSSBeautify()<cr>
+
 
 "################# 语法检查 ###############
 " Run pep8
@@ -487,8 +517,9 @@ au FileType python let b:delimitMate_nesting_quotes = ['"']
 "let g:pep8_map='<leader>8'
 Plugin 'nvie/vim-flake8'
 let g:flake8_show_in_file=1
-let g:flake8_show_quickfix=0
-let g:flake8_max_line_length=72
+let g:flake8_show_quickfix=1
+let g:flake8_max_line_length=100
+let g:flake8_quickfix_height=10
 highlight link Flake8_Error      Error
 highlight link Flake8_Warning    WarningMsg
 highlight link Flake8_Complexity WarningMsg
@@ -497,9 +528,27 @@ highlight link Flake8_PyFlake    WarningMsg
 
 Plugin 'scrooloose/syntastic'
 let g:syntastic_python_checkers=['flake8']
-let g:syntastic_python_checker_args='--ignore=E501,E225'
+let g:syntastic_javascript_checkers=['jshint']
+let g:syntastic_html_checkers = ["jshint"]
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 2
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
 
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
 
+function! ToggleErrors()
+    let old_last_winnr = winnr('$')
+    lclose
+    if old_last_winnr == winnr('$')
+        " Nothing was closed, open syntastic error location panel
+        Errors
+    endif
+endfunction
+
+nnoremap <silent> <C-e> :<C-u>call ToggleErrors()<CR>
 "################# 具体语言语法高亮 ###############
 
 " for python.vim syntax highlight
@@ -509,11 +558,6 @@ let python_highlight_all = 1
 " for docker file
 Plugin 'ekalinin/Dockerfile.vim'
 
-" for markdown
-Plugin 'plasticboy/vim-markdown'
-let g:vim_markdown_folding_disabled=1
-
-
 "for jquery
 Plugin 'nono/jquery.vim'
 
@@ -521,6 +565,18 @@ Plugin 'nono/jquery.vim'
 " task list
 Plugin 'vim-scripts/TaskList.vim'
 map <leader>td <Plug>TaskList
+
+" 配置 vim-livedown
+Plugin 'shime/vim-livedown'
+"
+let g:livedown_autorun = 0
+
+let g:livedown_open = 1
+
+let g:livedown_port = 13377
+nmap <leader>l :LivedownPreview<CR>
+nmap <leader>lk :LivedownKill<CR>
+
 
 call vundle#end()
 
@@ -549,9 +605,13 @@ if has("gui_running")
 endif
 
 " 修改主题和颜色展示
-colorscheme slate
+"colorscheme slate
 
-"colorscheme molokai
+"colorscheme github
+colorscheme molokai
+
+"colorscheme eva01
+
 "colorscheme desert
 
 "设置标记一列的背景颜色和数字一行颜色一致
@@ -573,3 +633,6 @@ highlight SpellLocal term=underline cterm=underline
 
 " F10 to run python script
 nnoremap <buffer> <F10> :exec '!python' shellescape(@%, 1)<cr>
+
+" vim 无参数时，自动打开 nerdtree
+autocmd vimenter * if !argc() | NERDTree | endif
