@@ -17,30 +17,24 @@
 " General 基础设置
 "==========================================
 
-"set guifont=Monaco:h20          " 字体 && 字号
+" set guifont=Monaco:h20          " 字体 && 字号
 
 " history存储长度。
-set history=2000
+" set history=2000
 
 "检测文件类型
+
 filetype on
 "针对不同的文件类型采用不同的缩进格式
 filetype indent on
 "允许插件
 filetype plugin on
-"启动自动补全
-filetype plugin indent on
 
 set shell=bash\ -i
 "非兼容vi模式。去掉讨厌的有关vi一致性模式，避免以前版本的一些bug和局限
 set nocompatible
 set autoread          " 文件修改之后自动载入。
 "set shortmess=atI       " 启动的时候不显示那个援助索马里儿童的提示
-
-" 备份,到另一个位置. 防止误删, 目前是取消备份
-"set backup
-"set backupext=.bak
-"set backupdir=~/bak/vimbk/
 
 " 取消备份。 视情况自己改
 set nobackup
@@ -82,7 +76,7 @@ set incsearch
 set smartcase     " ignore case if search pattern is all lowercase, case-sensitive otherwise
 
 " 代码折叠
-"set foldenable
+set foldenable
 " 折叠方法
 " manual    手工折叠
 " indent    使用缩进表示折叠
@@ -90,8 +84,20 @@ set smartcase     " ignore case if search pattern is all lowercase, case-sensiti
 " syntax    使用语法定义折叠
 " diff      对没有更改的文本进行折叠
 " marker    使用标记进行折叠, 默认标记是 {{{ 和 }}}
-"set foldmethod=indent
-"set foldlevel=99
+set foldmethod=indent
+set foldlevel=99
+" 代码折叠自定义快捷键 <leader>zz
+let g:FoldMethod = 0
+map <leader>zz :call ToggleFold()<cr>
+fun! ToggleFold()
+    if g:FoldMethod == 0
+        exe "normal! zM"
+        let g:FoldMethod = 1
+    else
+        exe "normal! zR"
+        let g:FoldMethod = 0
+    endif
+endfun
 
 "Smart indent
 set autoindent    " always set autoindenting on
@@ -118,7 +124,7 @@ set showmode
 set scrolloff=7
 
 " 命令行（在状态行下）的高度，默认为1，这里是2
-set statusline=%<%f\ %h%m%r%=%k[%{(&fenc==\"\")?&enc:&fenc}%{(&bomb?\",BOM\":\"\")}]\ %-14.(%l,%c%V%)\ %P
+"set statusline=%<%f\ %h%m%r%=%k[%{(&fenc==\"\")?&enc:&fenc}%{(&bomb?\",BOM\":\"\")}]\ %-14.(%l,%c%V%)\ %P
 " Always show the status line
 set laststatus=2
 
@@ -146,22 +152,51 @@ set formatoptions+=m
 " 合并两行中文时，不在中间加空格：
 set formatoptions+=B
 
+set lisp
+
+" http://stackoverflow.com/questions/13194428/is-better-way-to-zoom-windows-in-vim-than-zoomwin
+" Zoom / Restore window.
+function! s:ZoomToggle() abort
+    if exists('t:zoomed') && t:zoomed
+        execute t:zoom_winrestcmd
+        let t:zoomed = 0
+    else
+        let t:zoom_winrestcmd = winrestcmd()
+        resize
+        vertical resize
+        let t:zoomed = 1
+    endif
+endfunction
+command! ZoomToggle call s:ZoomToggle()
+nnoremap <silent> <Leader>z :ZoomToggle<CR>
+
 ""===========================================================
 " FileType specific changes
 " ============================================================
 " Mako/HTML
 autocmd BufNewFile,BufRead *.mako,*.mak,*.jinja2, setlocal ft=html
-autocmd FileType yaml,htmldjango,html,xhtml,xml,css setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
-autocmd FileType javascript setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
+autocmd FileType ruby,javascript,yaml,htmldjango,html,xhtml,xml,css,stylus setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
 autocmd FileType javascript set omnifunc=javascriptcomplete#CompleteJS
+autocmd BufRead,BufNewFile *.md,*.mkd,*.markdown set filetype=markdown
+autocmd BufRead,BufNewFile *.part set filetype=html
+" disable showmatch when use > in php
+au BufWinEnter *.php set mps-=<:>
 
 " Python
 "au BufRead *.py compiler nose
+au BufRead,BufNewFile *.py set filetype=python
 autocmd FileType python set omnifunc=pythoncomplete#Complete
 autocmd FileType python setlocal expandtab shiftwidth=4 tabstop=4 softtabstop=4 cinwords=if,elif,else,for,while,try,except,finally,def,class,
 autocmd BufRead *.py set efm=%C\ %.%#,%A\ \ File\ \"%f\"\\,\ line\ %l%.%#,%Z%[%^\]%\\@=%m
 
-autocmd BufNewFile,BufFilePre,BufRead *.md set filetype=markdown
+" 保存python文件时删除多余空格
+fun! <SID>StripTrailingWhitespaces()
+    let l = line(".")
+    let c = col(".")
+    %s/\s\+$//e
+    call cursor(l, c)
+endfun
+autocmd FileType c,cpp,java,go,php,javascript,puppet,python,rust,twig,xml,yml,perl autocmd BufWritePre <buffer> :call <SID>StripTrailingWhitespaces()
 
 
 " Don't let pyflakes use the quickfix window
@@ -184,14 +219,6 @@ if has("autocmd")
   au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
 endif
 
-"删除多余空格
-" Delete trailing white space on save, useful for Python and CoffeeScript ;)
-func! DeleteTrailingWS()
-  exe "normal mz"
-  %s/\s\+$//ge
-  exe "normal `z"
-endfunc
-autocmd BufWrite *.py :call DeleteTrailingWS()
 
 " Remember info about open buffers on close"
 set viminfo^=%
@@ -208,16 +235,7 @@ command! WQ :wq
 "==========================================
 "hot key  自定义快捷键
 "==========================================
-let mapleader = ','
 let g:mapleader = ','
-
-" Quickly edit/reload the vimrc file
-nmap <silent> <leader>ev :e $MYVIMRC<CR>
-nmap <silent> <leader>sv :so $MYVIMRC<CR>
-
-"翻页
-" map <C-o> <C-b>
-" map <C-p> <C-f>
 
 "Treat long lines as break lines (useful when moving around in them)
 "se swap之后，同物理行上线直接跳
@@ -245,6 +263,7 @@ noremap <C-e> $
 map 0 ^
 
 nnoremap <F1> :set paste! paste?<CR>
+imap <F1> <ESC>:set paste! paste?<CR>
 nnoremap <F2> :set nu! nu?<CR>
 nnoremap <F3> :set list! list?<CR>
 nnoremap <F4> :set wrap! wrap?<CR>
@@ -256,14 +275,11 @@ nnoremap <F6> :set clipboard=unnamed<CR>
 set foldmethod=indent
 set foldlevel=99
 set foldignore=
-nnoremap <space> za
-vnoremap <space> zf
 
 map Y y$
 "cmap w!! %!sudo tee > /dev/null %
 " w!! to sudo & write a file
 cmap w!! w !sudo tee > /dev/null %
-
 
 " ; can repeat fx/tx. so do not map it
 nnoremap ; :
@@ -294,27 +310,13 @@ nnoremap U <C-r>
 map <Leader><C-a> ggVG"
 map <Leader>d gd
 
-" automatically reload vimrc when it's saved
-au BufWritePost .vimrc so ~/.vimrc
-
-map <leader>tn :tabnew<cr>
-map <leader>to :tabonly<cr>
-map <leader>tc :tabclose<cr>
-map <leader>t<left> :tabp<cr>
-map <leader>t<right> :tabn<cr>
-
-" tabnext  tabpreviouse
-
-" Opens a new tab with the current buffer's path
-" Super useful when editing files in the same directory
-map <leader>te :tabedit <c-r>=expand("%:p:h")<cr>/
-
 "==========================================
 " bundle 插件管理和配置项
 "package dependent:  ctags
 "python dependent:  pep8, pyflake
 
 filetype off " required! turn off
+
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 
@@ -324,9 +326,6 @@ call vundle#begin()
 "使用Vundle来管理Vundle
 Plugin 'gmarik/Vundle.vim'
 
-"阅读hackernews
-Plugin 'ryanss/vim-hackernews'
-
 Plugin 'ervandew/supertab'
 let g:SuperTabDefaultCompletionType = '<C-n>'
 
@@ -335,40 +334,38 @@ Plugin 'Valloric/YouCompleteMe'
 "imap <Tab> <C-P>
 " YCM 补全菜单配色
 " 菜单
-highlight Pmenu ctermfg=2 ctermbg=3 guifg=#005f87 guibg=#EEE8D5
+highlight Pmenu ctermfg=1 ctermbg=15 guifg=#005f87 guibg=#EEE8D5
 " 选中项
-highlight PmenuSel ctermfg=2 ctermbg=3 guifg=#AFD700 guibg=#106900
+highlight PmenuSel ctermfg=15 ctermbg=1 guifg=#AFD700 guibg=#106900
 " 补全功能在注释中同样有效
 let g:ycm_complete_in_comments=1
-" 允许 vim 加载 .ycm_extra_conf.py 文件，不再提示
-let g:ycm_confirm_extra_conf=0
+"" 允许 vim 加载 .ycm_extra_conf.py 文件，不再提示
+"let g:ycm_confirm_extra_conf=0
 " 开启 YCM 标签补全引擎
 let g:ycm_collect_identifiers_from_tags_files=1
-" 引入 C++ 标准库tags
-set tags+=/data/misc/software/misc./vim/stdcpp.tags
-" YCM 集成 OmniCppComplete 补全引擎，设置其快捷键
-inoremap <leader>; <C-x><C-o>
 " 补全内容不以分割子窗口形式出现，只显示补全列表
 set completeopt-=preview
 " 从第一个键入字符就开始罗列匹配项
 let g:ycm_min_num_of_chars_for_completion=1
-" 禁止缓存匹配项，每次都重新生成匹配项
-let g:ycm_cache_omnifunc=0
-" 语法关键字补全
+"" 禁止缓存匹配项，每次都重新生成匹配项
+"let g:ycm_cache_omnifunc=0
+"" 语法关键字补全
 let g:ycm_seed_identifiers_with_syntax=1
 let g:ycm_key_list_select_completion = ['<TAB>', '<Down>']
 let g:ycm_key_list_previous_completion = ['<Up>']
 " 跳转到定义 "
-nnoremap <leader>jd :YcmCompleter GoToDefinitionElseDeclaration<CR>
+nnoremap <leader>jd :YcmCompleter GoToDefinition<CR>
+nnoremap <leader>jc :YcmCompleter GetDoc<CR>
+"nnoremap <leader>jd :YcmCompleter GoToDefinitionElseDeclaration<CR>
+"
+let g:ycm_python_binary_path = '/usr/bin/python'
 
 
 " ultisnips补全
 Plugin 'SirVer/ultisnips'
 " better key bindings for UltiSnipsExpandTrigger
 let g:UltiSnipsExpandTrigger = "<leader><tab>"
-let g:UltiSnipsJumpForwardTrigger = "<leader><leader><tab>"
-let g:UltiSnipsJumpBackwardTrigger = "<s-tab>"
-let g:UltiSnipsListSnippets="<c-e>"
+let g:UltiSnipsJumpForwardTrigger = "<tab>"
 let g:UltiSnipsSnippetDirectories=["UltiSnips/snippets"]
 
 
@@ -398,16 +395,23 @@ let g:miniBufExplMapWindowNavVim = 1
 let g:miniBufExplMapWindowNavArrows = 1
 let g:miniBufExplMapCTabSwitchBufs = 1
 let g:miniBufExplModSelTarget = 1
-"解决FileExplorer窗口变小问题
-let g:miniBufExplForceSyntaxEnable = 1
+" "解决FileExplorer窗口变小问题
 let g:miniBufExplorerMoreThanOne=2
 let g:miniBufExplCycleArround=1
+hi MBEVisibleActive guifg=#A6DB29 guibg=fg
+hi MBEVisibleChangedActive guifg=#F1266F guibg=fg
+hi MBEVisibleChanged guifg=#F1266F guibg=fg
+hi MBEVisibleNormal guifg=#5DC2D6 guibg=fg
+hi MBEChanged guifg=#CD5907 guibg=fg
+hi MBENormal guifg=#808080 guibg=fg
+
 
 " 默认方向键左右可以切换buffer
 nnoremap <TAB> :MBEbn<CR>
-noremap <TAB><Left> :MBEbp<CR>
-noremap <TAB><Right> :MBEbn<CR>
+noremap <TAB>[ :MBEbp<CR>
+noremap <TAB>] :MBEbn<CR>
 noremap <Leader><C-w> :MBEbd<CR>
+map <space> :b<Space>
 
 "标签导航
 Plugin 'majutsushi/tagbar'
@@ -415,31 +419,20 @@ nmap <F9> :TagbarToggle<CR>
 let g:tagbar_autofocus = 1
 let g:tagbar_ctags_bin = '/usr/local/bin/ctags'
 let g:tagbar_show_linenumbers = 1
+let g:tagbar_vertical = 1
 
 " 对齐分隔线
 Plugin 'Yggdroot/indentLine'
 let g:indentLine_char = '┆'
-" let g:indentLine_char = '┊'
 
-"书签设置
-" Plugin 'kshenoy/vim-signature'
-" let g:SignatureMap = {
-" 	\'Leader'             :  "m",
-"         \ 'DeleteMark'         :  "dm",
-"         \ 'PurgeMarkers'       :  "m<BS>",
-"         \ 'GotoNextSpotByPos'  :  "m,",
-"         \ 'GotoPrevSpotByPos'  :  "m.",
-"         \ 'ListLocalMarks'     :  "ms",
-"         \ }
-
-" emmet for web developer, which was named zen-coding
 Plugin 'mattn/emmet-vim'
-let g:user_emmet_leader_key='<Leader>'
+"let g:user_emmet_leader_key='<Leader>'
+let g:user_emmet_install_global = 0
+autocmd FileType htmldjango,html,css EmmetInstall
 
 "内容搜索
 Plugin 'dyng/ctrlsf.vim'
-"noremap <leader>bd :MBEbd<CR>
-let g:ctrlsf_ackprg = 'ack'
+let g:ctrlsf_ackprg = 'ag'
 let g:ctrlsf_position = 'bottom'
 nmap <leader>ff <Plug>CtrlSFCwordPath
 
@@ -449,14 +442,12 @@ Plugin 'kien/ctrlp.vim'
 let g:ctrlp_map = '<leader>p'
 let g:ctrlp_cmd = 'CtrlP'
 let g:ctrlp_working_path_mode = 'rw'
-map <leader>/ :CtrlPMRU<CR>
-"set wildignore+=*/tmp/*,*.so,*.swp,*.zip     " MacOSX/Linux"
+map <leader><leader>p :CtrlPMRU<CR>
 let g:ctrlp_custom_ignore = {
-    \ 'dir':  '\v[\/]\.(git|hg|svn|rvm)$',
-    \ 'file': '\v\.(exe|so|dll|zip|tar|tar.gz)$',
+    \ 'dir':  '\v[\/]\.?(git|hg|svn|rvm|venv|node_modules)$',
+    \ 'file': '\v\.(exe|so|dll|zip|tar|tar.gz|jpg|png|log|swp|pyc)$',
     \ }
-"\ 'link': 'SOME_BAD_SYMBOLIC_LINKS',
-let g:ctrlp_working_path_mode=0
+"let g:ctrlp_working_path_mode=2
 let g:ctrlp_match_window_bottom=1
 let g:ctrlp_max_height=15
 let g:ctrlp_match_window_reversed=0
@@ -466,7 +457,13 @@ let g:ctrlp_follow_symlinks=1
 "################### 显示增强 ###################"
 
 "状态栏增强展示
-Plugin 'Lokaltog/vim-powerline'
+"Plugin 'Lokaltog/vim-powerline'
+Plugin 'vim-airline/vim-airline'
+Plugin 'vim-airline/vim-airline-themes'
+let g:airline_powerline_fonts = 1
+let g:airline_theme='powerlineish'
+let g:airline#extensions#branch#enabled=1
+"set rtp+=/usr/local/lib/python3.5/site-packages/powerline/bindings/vim
 
 "for show no user whitespaces
 Plugin 'bronson/vim-trailing-whitespace'
@@ -476,9 +473,13 @@ map <leader><space> :FixWhitespace<cr>
 Plugin 'Lokaltog/vim-easymotion'
 let g:EasyMotion_do_mapping = 0 " Disable default mappings"
 let g:EasyMotion_smartcase = 1
-map <Leader>f <Plug>(easymotion-s)
 map <Leader><Leader> <Plug>(easymotion-w)
-map <Leader>j <Plug>(easymotion-jumptoanywhere)
+map <Leader><Leader><Leader> <Plug>(easymotion-jumptoanywhere)
+map  <Leader>f <Plug>(easymotion-bd-w)
+nmap <Leader>f <Plug>(easymotion-overwin-w)
+
+"git wrapper
+Plugin 'tpope/vim-fugitive'
 
 
 "vim multiple cursors
@@ -493,51 +494,30 @@ Plugin 'Raimondi/delimitMate'
 " for python docstring ",优化输入
 au FileType python let b:delimitMate_nesting_quotes = ['"']
 
-" evernote client helpers plugin
-
-Plugin 'neilagabriel/vim-geeknote'
-noremap <leader>gk :Geeknote<cr>
-
-
-"################ javascript ##############
-" 一键对齐
-Plugin 'maksimr/vim-jsbeautify'
-Plugin 'einars/js-beautify'
-
-autocmd FileType javascript noremap <buffer>  <Leader>t :call JsBeautify()<cr>
-" for html
-autocmd FileType html noremap <buffer> <Leader>t :call HtmlBeautify()<cr>
-" for css or scss
-autocmd FileType css noremap <buffer> <Leader>t :call CSSBeautify()<cr>
-
-
 "################# 语法检查 ###############
-" Run pep8
-"Plugin 'vim-scripts/pep8'
-"let g:pep8_map='<leader>8'
-Plugin 'nvie/vim-flake8'
-let g:flake8_show_in_file=1
-let g:flake8_show_quickfix=1
-let g:flake8_max_line_length=100
-let g:flake8_quickfix_height=10
-highlight link Flake8_Error      Error
-highlight link Flake8_Warning    WarningMsg
-highlight link Flake8_Complexity WarningMsg
-highlight link Flake8_Naming     WarningMsg
-highlight link Flake8_PyFlake    WarningMsg
-
 Plugin 'scrooloose/syntastic'
 let g:syntastic_python_checkers=['flake8']
-let g:syntastic_javascript_checkers=['jshint']
+let g:syntastic_javascript_checkers=['eslint']
+let g:syntastic_vue_checkers=['eslint']
+let g:syntastic_vue_eslint_args = "--no-eslintrc --config /Users/kobras/.vueeslintrc"
 let g:syntastic_html_checkers = ["jshint"]
 let g:syntastic_always_populate_loc_list = 1
 let g:syntastic_auto_loc_list = 2
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
 
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
+"set statusline+=%#warningmsg#
+"set statusline+=%{SyntasticStatuslineFlag()}
+"set statusline+=%*
+
+" let g:syntastic_error_symbol = '❌'
+" let g:syntastic_style_error_symbol = '❌'
+" let g:syntastic_warning_symbol = '⚠️'
+" let g:syntastic_style_warning_symbol = '💩'
+" highlight link SyntasticErrorSign SignColumn
+" highlight link SyntasticWarningSign SignColumn
+" highlight link SyntasticStyleErrorSign SignColumn
+" highlight link SyntasticStyleWarningSign SignColumn
 
 function! ToggleErrors()
     let old_last_winnr = winnr('$')
@@ -555,11 +535,48 @@ nnoremap <silent> <C-e> :<C-u>call ToggleErrors()<CR>
 Plugin 'hdima/python-syntax'
 let python_highlight_all = 1
 
-" for docker file
-Plugin 'ekalinin/Dockerfile.vim'
+" for go-lang
+Plugin 'fatih/vim-go'
+autocmd FileType go setlocal expandtab shiftwidth=4 tabstop=4 softtabstop=4
 
-"for jquery
-Plugin 'nono/jquery.vim'
+"for jade
+Plugin 'digitaltoad/vim-pug'
+
+"for javascript
+Plugin 'pangloss/vim-javascript'
+let g:javascript_enable_domhtmlcss = 1
+
+" tern
+Plugin 'ternjs/tern_for_vim'
+
+"：for es6
+Plugin 'isRuslan/vim-es6'
+
+"for less
+Plugin 'groenewege/vim-less'
+
+"enhance javascript syntax
+Plugin 'jelera/vim-javascript-syntax'
+
+Plugin 'mxw/vim-jsx'
+" jsx语法
+
+Plugin 'wavded/vim-stylus'
+" stylus 语法
+
+"for vue
+Plugin 'posva/vim-vue'
+autocmd FileType vue setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
+autocmd BufRead,BufNewFile *.we set filetype=vue
+nnoremap <leader>css :set ft=css<cr>
+nnoremap <leader>js :set ft=js<cr>
+nnoremap <leader>html :set ft=html<cr>
+nnoremap <leader>stylus :set ft=stylus<cr>
+nnoremap <leader>vue :set ft=vue<cr>
+
+
+" Plugin 'othree/javascript-libraries-syntax.vim'
+" let g:used_javascript_libs = 'jquery,underscore,react'
 
 "################### 其他 ###################"
 " task list
@@ -576,7 +593,6 @@ let g:livedown_open = 1
 let g:livedown_port = 13377
 nmap <leader>l :LivedownPreview<CR>
 nmap <leader>lk :LivedownKill<CR>
-
 
 call vundle#end()
 
@@ -606,20 +622,22 @@ endif
 
 " 修改主题和颜色展示
 "colorscheme slate
-
 "colorscheme github
-colorscheme molokai
-
+"colorscheme molokai
 "colorscheme eva01
-
 "colorscheme desert
+"colorscheme codeschool
+"colorscheme rainbow
+"colorscheme solarized
+"colorscheme gotham
+
 
 "设置标记一列的背景颜色和数字一行颜色一致
-hi! link SignColumn   LineNr
-hi! link ShowMarksHLl DiffAdd
-hi! link ShowMarksHLu DiffChange
-hi Pmenu ctermfg=67 ctermbg=black
-hi PmenuSel ctermfg=yellow ctermbg=black
+" hi! link SignColumn   LineNr
+" hi! link ShowMarksHLl DiffAdd
+" hi! link ShowMarksHLu DiffChange
+" hi Pmenu ctermfg=67 ctermbg=black
+" hi PmenuSel ctermfg=yellow ctermbg=black
 
 "" for error highlight，防止错误整行标红导致看不清
 highlight clear SpellBad
@@ -631,8 +649,5 @@ highlight SpellRare term=underline cterm=underline
 highlight clear SpellLocal
 highlight SpellLocal term=underline cterm=underline
 
-" F10 to run python script
-nnoremap <buffer> <F10> :exec '!python' shellescape(@%, 1)<cr>
-
-" vim 无参数时，自动打开 nerdtree
-autocmd vimenter * if !argc() | NERDTree | endif
+" json type
+autocmd FileType json autocmd BufWritePre <buffer> %!python -m json.tool
