@@ -423,7 +423,7 @@ Plug 'shime/vim-livedown'
         let g:ycm_key_list_previous_completion = ['<Up>']
 
         " 跳转到定义 "
-            let g:ycm_goto_buffer_command = 'split'
+        let g:ycm_goto_buffer_command = 'split'
         nnoremap <leader>jc :YcmCompleter GetDoc<CR>
         " nnoremap <leader>jd :YcmCompleter GoToDefinition<CR>
         nnoremap <leader>jd :YcmCompleter GoToDefinitionElseDeclaration<CR>
@@ -532,7 +532,7 @@ Plug 'shime/vim-livedown'
 
 
 " TaskList {{{
-        map <leader>td <Plug>TaskList
+        map <leader>tl <Plug>TaskList
 " }}}
 
 
@@ -566,6 +566,7 @@ Plug 'shime/vim-livedown'
 " }}}
 
 " airline {{{
+    let g:airline_theme='violet'
     if !exists('g:airline_symbols')
         let g:airline_symbols = {}
     endif
@@ -575,7 +576,6 @@ Plug 'shime/vim-livedown'
     let g:airline_right_alt_sep = '❮'
     let g:airline_symbols.linenr = '¶'
     let g:airline_symbols.branch = '⎇'
-    let g:airline_theme='bubblegum'
     function! AirlineInit()
       let g:airline_section_a = airline#section#create(['(づ｡◕‿‿◕｡)づ', ' ', 'mode'])
       let g:airline_section_x = airline#section#create(['tagbar'])
@@ -725,6 +725,7 @@ Plug 'shime/vim-livedown'
 " nerdcommenter {{{
     let g:NERDSpaceDelims=1
     let g:NERDAltDelims_python = 1
+    autocmd VimEnter * noremap <leader>cc  :call NERDComment(0,"toggle")<CR>
 " }}}
 
 
@@ -792,6 +793,8 @@ endif
 "colorscheme rainbow
 "colorscheme solarized
 "colorscheme gotham
+colorscheme space-vim-dark
+set termguicolors
 
 
 "设置标记一列的背景颜色和数字一行颜色一致
