@@ -266,9 +266,11 @@ function! ToggleClipboard()
     if exists('t:savedInClipboard') && t:savedInClipboard
         set clipboard=
         let t:savedInClipboard = 0
+        echo 'disable clipboard'
     else
         set clipboard=unnamed
         let t:savedInClipboard = 1
+        echo 'enable clipboard'
     endif
 endfunction
 
@@ -322,6 +324,8 @@ call plug#begin('~/.vim/bundle')
 
 Plug 'junegunn/vim-plug'
 
+Plug 'junegunn/vim-emoji'
+
 Plug 'Valloric/YouCompleteMe'
 
 Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
@@ -366,7 +370,7 @@ Plug 'tpope/vim-repeat' | Plug 'tpope/vim-surround'
 
 Plug 'Raimondi/delimitMate'
 
-Plug 'scrooloose/syntastic'
+" Plug 'scrooloose/syntastic'
 
 Plug 'hdima/python-syntax'
 
@@ -398,7 +402,15 @@ Plug 'vim-scripts/TaskList.vim'
 
 Plug 'shime/vim-livedown'
 
+Plug 'w0rp/ale'
+
+Plug 'https://gist.github.com/0b3122700a8635ad808d8632bc383c41.git',
+    \ { 'as': 'yapf', 'do': 'mkdir -p plugin; mv -f *.vim plugin/' }
+
 " Plug 'ryanoasis/vim-devicons'
+
+
+call plug#end()
 
 "################ 配置 ###################"
 " YouCompleteMe {{{
@@ -432,60 +444,74 @@ Plug 'shime/vim-livedown'
 
 " }}}
 
+" vim-emoji {
+    augroup SPACEVIM_EMOJI
+        autocmd!
+        autocmd FileType markdown setlocal completefunc=emoji#complete
+    augroup END
+" }
 
-" syntastic {{{
-        " let g:syntastic_python_checkers=['flake8']
-        let g:syntastic_python_checkers=['pyflakes', 'pep8']
-        let g:syntastic_python_pep8_args="--ignore=E501,W601"
-        let g:syntastic_javascript_checkers=['eslint']
-        let g:syntastic_vue_checkers=['eslint']
-        let g:syntastic_vue_eslint_args = "--no-eslintrc --config /Users/kobras/.vueeslintrc"
-        let g:syntastic_html_checkers = ["tidy", "jshint"]
-        let g:syntastic_always_populate_loc_list = 1
-
-        let g:syntastic_auto_loc_list = 2
-        let g:syntastic_check_on_open = 1
-        let g:syntastic_check_on_wq = 0
-        let g:syntastic_error_symbol='>>'
-        let g:syntastic_warning_symbol='>'
-
-        set statusline+=%#warningmsg#
-        set statusline+=%{SyntasticStatuslineFlag()}
-        set statusline+=%*
+" yapf {
+		autocmd FileType python vnoremap <Leader>= :call yapf#YAPF()<cr>
+		autocmd FileType python nnoremap <Leader>= :call yapf#YAPF_ALL()<cr>
+" }
 
 
-        function! ToggleErrors()
-            let old_last_winnr = winnr('$')
-            lclose
-            if old_last_winnr == winnr('$')
-                " Nothing was closed, open syntastic error location panel
-                Errors
-            endif
-        endfunction
-
-        nnoremap <Leader>e :call ToggleErrors()<CR>
-        " ,en ,ep to jump between errors
-        function! <SID>LocationPrevious()
-        try
-            lprev
-        catch /^Vim\%((\a\+)\)\=:E553/
-            llast
-        endtry
-        endfunction
-
-        function! <SID>LocationNext()
-        try
-            lnext
-        catch /^Vim\%((\a\+)\)\=:E553/
-            lfirst
-        endtry
-        endfunction
-
-        nnoremap <silent> <Plug>LocationPrevious    :<C-u>exe 'call <SID>LocationPrevious()'<CR>
-        nnoremap <silent> <Plug>LocationNext        :<C-u>exe 'call <SID>LocationNext()'<CR>
-        nmap <silent> <Leader>ep    <Plug>LocationPrevious
-        nmap <silent> <Leader>en    <Plug>LocationNext
-" }}}
+" " syntastic {{{
+"         " let g:syntastic_python_checkers=['flake8']
+"         let g:syntastic_python_checkers=['pyflakes', 'pep8']
+"         let g:syntastic_python_pep8_args="--ignore=E501,W601"
+"         let g:syntastic_javascript_checkers=['eslint']
+"         let g:syntastic_vue_checkers=['eslint']
+"         let g:syntastic_vue_eslint_args = "--no-eslintrc --config /Users/kobras/.vueeslintrc"
+"         let g:syntastic_html_checkers = ["tidy", "jshint"]
+"         let g:syntastic_always_populate_loc_list = 1
+"
+"         let g:syntastic_auto_loc_list = 2
+"         let g:syntastic_check_on_open = 1
+"         let g:syntastic_check_on_wq = 0
+"         " let g:syntastic_error_symbol='>>'
+"         " let g:syntastic_warning_symbol='>'
+"         let g:syntastic_error_symbol='✹'
+"         let g:syntastic_warning_symbol='✴'
+"
+"         set statusline+=%#warningmsg#
+"         set statusline+=%{SyntasticStatuslineFlag()}
+"         set statusline+=%*
+"
+"
+"         function! ToggleErrors()
+"             let old_last_winnr = winnr('$')
+"             lclose
+"             if old_last_winnr == winnr('$')
+"                 " Nothing was closed, open syntastic error location panel
+"                 Errors
+"             endif
+"         endfunction
+"
+"         nnoremap <Leader>e :call ToggleErrors()<CR>
+"         " ,en ,ep to jump between errors
+"         function! <SID>LocationPrevious()
+"         try
+"             lprev
+"         catch /^Vim\%((\a\+)\)\=:E553/
+"             llast
+"         endtry
+"         endfunction
+"
+"         function! <SID>LocationNext()
+"         try
+"             lnext
+"         catch /^Vim\%((\a\+)\)\=:E553/
+"             lfirst
+"         endtry
+"         endfunction
+"
+"         nnoremap <silent> <Plug>LocationPrevious    :<C-u>exe 'call <SID>LocationPrevious()'<CR>
+"         nnoremap <silent> <Plug>LocationNext        :<C-u>exe 'call <SID>LocationNext()'<CR>
+"         nmap <silent> <Leader>eN    <Plug>LocationPrevious
+"         nmap <silent> <Leader>en    <Plug>LocationNext
+" " }}}
 
 
 " ultisnips {{{
@@ -566,7 +592,7 @@ Plug 'shime/vim-livedown'
 " }}}
 
 " airline {{{
-    let g:airline_theme='violet'
+    let g:airline_theme='light'
     if !exists('g:airline_symbols')
         let g:airline_symbols = {}
     endif
@@ -655,6 +681,33 @@ Plug 'shime/vim-livedown'
         let g:tagbar_ctags_bin = '/usr/local/bin/ctags'
         let g:tagbar_show_linenumbers = 1
         let g:tagbar_vertical = 1
+	      let g:tagbar_type_go = {
+	      		\ 'ctagstype' : 'go',
+	      		\ 'kinds'     : [
+	      				\ 'p:package',
+	      				\ 'i:imports:1',
+	      				\ 'c:constants',
+	      				\ 'v:variables',
+	      				\ 't:types',
+	      				\ 'n:interfaces',
+	      				\ 'w:fields',
+	      				\ 'e:embedded',
+	      				\ 'm:methods',
+	      				\ 'r:constructor',
+	      				\ 'f:functions'
+	      		\ ],
+	      		\ 'sro' : '.',
+	      		\ 'kind2scope' : {
+	      				\ 't' : 'ctype',
+	      				\ 'n' : 'ntype'
+	      		\ },
+	      		\ 'scope2kind' : {
+	      				\ 'ctype' : 't',
+	      				\ 'ntype' : 'n'
+	      		\ },
+	      		\ 'ctagsbin'  : 'gotags',
+	      		\ 'ctagsargs' : '-sort -silent'
+	      \ }
 " }}}
 
 
@@ -701,6 +754,8 @@ Plug 'shime/vim-livedown'
 
 " indentLine {{{
         let g:indentLine_char = '┆'
+        let g:indentLine_indentLevel = 5
+        let g:indentline_fast = 1
 " }}}
 
 
@@ -758,7 +813,62 @@ Plug 'shime/vim-livedown'
     hi CtrlSpaceStatus   guifg=#839496 guibg=#002b36 gui=reverse term=reverse cterm=reverse ctermfg=12 ctermbg=8
 " }}}
 
-call plug#end()
+
+" ale {{{
+    let g:ale_linters = {
+                \   'sh' : ['shellcheck'],
+                \   'vim' : ['vint'],
+                \   'html' : ['tidy'],
+                \   'python' : ['flake8'],
+                \   'markdown' : ['mdl'],
+                \   'javascript' : ['eslint'],
+                \}
+    " If emoji not loaded, use default sign
+    try
+        let g:ale_sign_warning = emoji#for('boom')
+        let g:ale_sign_error = emoji#for('boom')
+    catch
+        " Use same sign and distinguish error and warning via different colors.
+        let g:ale_sign_error = '•'
+        let g:ale_sign_warning = '•'
+    endtry
+    let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+    let g:ale_statusline_format = ['E•%d', 'W•%d', 'OK']
+
+    " For a more fancy ale statusline
+    function! ALEGetError()
+        let l:res = ale#statusline#Status()
+        if l:res ==# 'OK'
+            return ''
+        else
+            let l:e_w = split(l:res)
+            if len(l:e_w) == 2 || match(l:e_w, 'E') > -1
+                return ' •' . matchstr(l:e_w[0], '\d\+') .' '
+            endif
+        endif
+    endfunction
+
+    function! ALEGetWarning()
+        let l:res = ale#statusline#Status()
+        if l:res ==# 'OK'
+            return ''
+        else
+            let l:e_w = split(l:res)
+            if len(l:e_w) == 2
+                return ' •' . matchstr(l:e_w[1], '\d\+')
+            elseif match(l:e_w, 'W') > -1
+                return ' •' . matchstr(l:e_w[0], '\d\+')
+            endif
+        endif
+    endfunction
+
+    let g:ale_echo_msg_error_str = '✹ Error'
+    let g:ale_echo_msg_warning_str = '⚠ Warning'
+
+    nmap <Leader>en <Plug>(ale_next)
+    nmap <Leader>eN <Plug>(ale_previous)
+
+" }}}
 
 "========================== config for plugins end ======================================
 
@@ -794,6 +904,32 @@ endif
 "colorscheme solarized
 "colorscheme gotham
 colorscheme space-vim-dark
+"colorscheme monokai
+
+" custom syntax
+"
+" python {
+    hi pythonLambdaExpr      ctermfg=105 guifg=#8787ff
+    hi pythonInclude         ctermfg=68  guifg=#5f87d7 cterm=bold gui=bold
+    hi pythonClass           ctermfg=167 guifg=#FF62B0 cterm=bold gui=bold
+    hi pythonParameters      ctermfg=147 guifg=#AAAAFF
+    hi pythonParam           ctermfg=175 guifg=#E37795
+    hi pythonBrackets        ctermfg=183 guifg=#d7afff
+    hi pythonClassParameters ctermfg=111 guifg=#FF5353
+    hi pythonSelf            ctermfg=68 guifg=#5f87d7 cterm=bold gui=bold
+
+    hi pythonDottedName      ctermfg=74  guifg=#5fafd7
+
+    hi pythonError           ctermfg=196 guifg=#ff0000
+    hi pythonIndentError     ctermfg=197 guifg=#ff005f
+    hi pythonSpaceError      ctermfg=198 guifg=#ff0087
+
+    hi pythonBuiltinType     ctermfg=74  guifg=#9191FF
+    hi pythonBuiltinObj      ctermfg=71  guifg=#5faf5f
+    hi pythonBuiltinFunc     ctermfg=169 guifg=#d75faf cterm=bold gui=bold
+
+    hi pythonException       ctermfg=207 guifg=#CC3366 cterm=bold gui=bold
+"}
 set termguicolors
 
 
