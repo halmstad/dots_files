@@ -1,34 +1,24 @@
+alias vim="/Applications/MacVim.app/Contents/MacOS/Vim"
+EDITOR=vim
 # 路径的alias
-alias dl="cd ~/Downloads"
-alias doc="cd ~/Documents"
-alias wk="cd ~/Workspace"
-alias j="jobs"
-alias h="history"
-alias zshrc='vim ~/.zshrc' # Quick access to the ~/.zshrc file
-alias vimrc='vim ~/.vimrc' # Quick access to the ~/.zshrc file
+alias tmux="TERM=screen-256color-bce tmux"
+alias vimrc='$EDITOR ~/.vimrc' # Quick access to the ~/.zshrc file
 alias lt='ls -lrt'
 alias node_cli="node -e \"require('repl').start({ignoreUndefined: true})\""
 alias cnpm="npm --registry=https://registry.npm.taobao.org --cache=$HOME/.npm/.cache/cnpm --disturl=https://npm.taobao.org/dist --userconfig=$HOME/.cnpmrc"
-alias ack="sack"
-alias acks="sack --ignore-dir venv --ignore-dir static"
-alias a="acks"
-alias m="mycli -u root -p"
-alias ls="ls -hF --color=tty"
-alias vim="/Applications/MacVim.app/Contents/MacOS/Vim"
+alias ack="sag"
+alias ls="ls -hF"
 alias image="open -a Preview"
 alias p="ipython"
 alias t="tldr find"
-alias s2="python manage.py runserver 0.0.0.0:8000"
-alias src="source venv/bin/activate"
 alias re="redis-cli -n 1"
 alias httpp='http-prompt'
-# alias clean_redis="redis-cli -n 1 KEYS '*' | xargs redis-cli -n 1 DEL"
-
-# alias ls="ls -FG"
+alias ww="curl wttr.in/London"
+alias c="cheat"
+alias j="jira job|lolcat"
 
 
 # 文件打开方式的alias
-EDITOR=vim
 _editor_fts=(cpp cxx cc c hh h inl asc txt TXT tex js txt py md json)
 for ft in $_editor_fts ; do alias -s $ft=$EDITOR ; done
 
@@ -130,7 +120,7 @@ function dataurl() {
 
 # Start an HTTP server from a directory, optionally specifying the port
 function server() {
-	local port="${1:-8000}";
+	local port="${1:-9000}";
 	sleep 1 && open "http://localhost:${port}/" &
 	# Set the default Content-Type to `text/plain` instead of `application/octet-stream`
 	# And serve everything as UTF-8 (although not technically correct, this doesn’t break anything for binary files)
@@ -232,15 +222,6 @@ function s() {
 	fi;
 }
 
-# `a` with no arguments opens the current directory in Atom Editor, otherwise
-# opens the given location
-function a() {
-	if [ $# -eq 0 ]; then
-		atom .;
-	else
-		atom "$@";
-	fi;
-}
 
 # `v` with no arguments opens the current directory in Vim, otherwise opens the
 # given location
@@ -262,12 +243,20 @@ function o() {
 	fi;
 }
 
+function atom() {
+	if [ $# -eq 0 ]; then
+		atom .;
+	else
+		atom "$@";
+	fi;
+}
+
 # `tre` is a shorthand for `tree` with hidden files and color enabled, ignoring
 # the `.git` directory, listing directories first. The output gets piped into
 # `less` with options to preserve color and line numbers, unless the output is
 # small enough for one screen.
 function tre() {
-	tree -aC -I '.git|node_modules|bower_components' --dirsfirst "$@" | less -FRNX;
+	tree -aC -I '.git|node_modules|bower_components|venv' --dirsfirst "$@" | less -FRNX;
 }
 
 # `sub` is word substitution, replacing words in project refactoring
@@ -278,4 +267,31 @@ function sub() {
 
 function clean_redis() {
 	redis-cli -n ${1} KEYS '*' | xargs redis-cli -n ${1} DEL
+}
+
+function i(){
+	curl ip.cn/$1
+}
+
+function src() {
+	if [ $# -eq 0 ]; then
+		if [ -d venv ]; then
+			source venv/bin/activate
+		fi;
+		if [ -d env ]; then
+			source env/bin/activate
+		fi;
+	else
+		source "$@";
+	fi;
+}
+
+function my() {
+	if [ $# -eq 0 ]; then
+		mycli -u root --pass root
+	else
+		mycli -u root --pass root -D "$@"
+
+	fi;
+
 }

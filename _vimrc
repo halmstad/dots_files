@@ -34,11 +34,14 @@ set shell=bash\ -i
 "非兼容vi模式。去掉讨厌的有关vi一致性模式，避免以前版本的一些bug和局限
 set nocompatible
 set autoread          " 文件修改之后自动载入。
-"set shortmess=atI       " 启动的时候不显示那个援助索马里儿童的提示
+set shortmess=atI       " 启动的时候不显示那个援助索马里儿童的提示
 
 " 取消备份。 视情况自己改
 set nobackup
 set noswapfile
+
+
+set wildignore=*.swp,*.bak,*.pyc,*.class,.svn
 
 " 突出显示当前行等 不喜欢这种定位可注解
 set cursorline              " 突出显示当前行
@@ -52,13 +55,30 @@ set noerrorbells         " don't beep
 set t_vb=
 set tm=500
 
-"==========================================
-" Show 展示/版本等界面格式设置
-"==========================================
+" Remember info about open buffers on close
+set viminfo^=%
 
+" For regular expressions turn magic on
+set magic
+
+" Configure backspace so it acts as it should act
+set backspace=eol,start,indent
+set whichwrap+=<,>,h,l
+
+"==========================================
+" Display Settings 展示/版本等界面格式设置
+"==========================================
+"
 "显示行号：
 set number
 set nowrap                    " 取消换行。
+
+"显示当前的行号列号：
+set ruler
+""在状态栏显示正在输入的命令
+set showcmd
+" Show current mode
+set showmode
 
 "括号配对情况
 set showmatch
@@ -109,16 +129,6 @@ set shiftround    " use multiple of shiftwidth when indenting with '<' and '>'
 set hidden
 set wildmode=list:longest
 set ttyfast
-
-
-set wildignore=*.swp,*.bak,*.pyc,*.class
-
-"显示当前的行号列号：
-set ruler
-""在状态栏显示正在输入的命令
-set showcmd
-" Show current mode
-set showmode
 
 " Set 7 lines to the cursor - when moving vertically using j/k 上下滚动,始终在中间
 set scrolloff=7
@@ -174,11 +184,12 @@ nnoremap <silent> <Leader>z :ZoomToggle<CR>
 " FileType specific changes
 " ============================================================
 " Mako/HTML
-autocmd BufNewFile,BufRead *.mako,*.mak,*.jinja2, setlocal ft=html
-autocmd FileType vim,ruby,javascript,yaml,htmldjango,html,xhtml,xml,css,stylus setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
+" autocmd BufNewFile,BufRead *.json set ft=javascript
+autocmd BufNewFile,BufRead *.mako,*.mak,*.jinja2,*.html setlocal ft=html
+autocmd FileType yml,vim,ruby,javascript,yaml,htmldjango,html,xhtml,xml,css,stylus,pug setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
 autocmd FileType javascript set omnifunc=javascriptcomplete#CompleteJS
-autocmd BufRead,BufNewFile *.md,*.mkd,*.markdown set filetype=markdown
-autocmd BufRead,BufNewFile *.part set filetype=html
+autocmd BufRead,BufNewFile *.md,*.mkd,*.markdown set filetype=markdown.mkd
+autocmd BufRead,BufNewFile *.vue setlocal filetype=vue.html.javascript tabstop=2 shiftwidth=2 softtabstop=2 expandtab ai
 " disable showmatch when use > in php
 au BufWinEnter *.php set mps-=<:>
 
@@ -189,6 +200,39 @@ autocmd FileType python set omnifunc=pythoncomplete#Complete
 autocmd FileType python setlocal expandtab shiftwidth=4 tabstop=4 softtabstop=4 cinwords=if,elif,else,for,while,try,except,finally,def,class,
 autocmd BufRead *.py set efm=%C\ %.%#,%A\ \ File\ \"%f\"\\,\ line\ %l%.%#,%Z%[%^\]%\\@=%m
 
+" disable showmatch when use > in php
+au BufWinEnter *.php set mps-=<:>
+
+" 保存python文件时删除多余空格
+fun! <SID>StripTrailingWhitespaces()
+    let l = line(".")
+    let c = col(".")
+    %s/\s\+$//e
+    call cursor(l, c)
+endfun
+autocmd FileType c,cpp,java,go,php,javascript,puppet,python,rust,twig,xml,yml,perl autocmd BufWritePre <buffer> :call <SID>StripTrailingWhitespaces()
+
+
+" 定义函数AutoSetFileHead，自动插入文件头
+autocmd BufNewFile *.sh,*.py exec ":call AutoSetFileHead()"
+function! AutoSetFileHead()
+    "如果文件类型为.sh文件
+    if &filetype == 'sh'
+        call setline(1, "\#!/bin/bash")
+    endif
+
+    "如果文件类型为python
+    if &filetype == 'python'
+         call setline(1, "\# coding: utf-8")
+    endif
+
+    normal G
+    normal o
+    normal o
+endfunc
+
+
+set lazyredraw          " redraw only when we need to.
 
 
 " Don't let pyflakes use the quickfix window
@@ -261,6 +305,7 @@ nnoremap <F3> :set list! list?<CR>
 nnoremap <F4> :set wrap! wrap?<CR>
 nnoremap <F5> :nohls<CR>
 nnoremap <F6> :call ToggleClipboard()<CR>
+nnoremap <F7> :exec exists('syntax_on') ? 'syn off' : 'syn on'<CR>
 
 function! ToggleClipboard()
     if exists('t:savedInClipboard') && t:savedInClipboard
@@ -273,6 +318,9 @@ function! ToggleClipboard()
         echo 'enable clipboard'
     endif
 endfunction
+
+au InsertLeave * set nopaste
+
 
 
 " Map <Space> to fold
@@ -330,7 +378,7 @@ Plug 'Valloric/YouCompleteMe'
 
 Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
 
-Plug 'scrooloose/nerdtree'
+Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle', 'for': 'directory' }
 
 Plug 'scrooloose/nerdcommenter'
 
@@ -409,6 +457,9 @@ Plug 'https://gist.github.com/0b3122700a8635ad808d8632bc383c41.git',
 
 " Plug 'ryanoasis/vim-devicons'
 
+Plug 'guofh/VimStock' , { 'on': ['Stock', 'Refresh'] }
+
+Plug 'tpope/vim-obsession'
 
 call plug#end()
 
@@ -452,8 +503,8 @@ call plug#end()
 " }
 
 " yapf {
-		autocmd FileType python vnoremap <Leader>= :call yapf#YAPF()<cr>
-		autocmd FileType python nnoremap <Leader>= :call yapf#YAPF_ALL()<cr>
+    autocmd FileType python nnoremap <leader>= :0,$!yapf<Cr>
+    autocmd FileType python vnoremap <leader>= :!yapf<Cr>
 " }
 
 
@@ -517,11 +568,12 @@ call plug#end()
 " ultisnips {{{
         let g:UltiSnipsExpandTrigger = "<leader><tab>"
         let g:UltiSnipsJumpForwardTrigger = "<tab>"
-            let g:UltiSnipsJumpBackwardTrigger = "<s-tab>"
-        let g:UltiSnipsSnippetDirectories=["UltiSnips/snippets"]
+        let g:UltiSnipsJumpBackwardTrigger = "<s-tab>"
+        let g:UltiSnipsSnippetDirectories=["bundle/vim-snippets/UltiSnips"]
         map <leader>us :UltiSnipsEdit<CR>
+        au FileType html UltiSnipsAddFiletypes djangohtml
+        au FileType python UltiSnipsAddFiletypes django
 " }}}'
-
 
 
 " vim-vue {{{
@@ -571,12 +623,11 @@ call plug#end()
     let g:go_highlight_functions = 1
     let g:go_highlight_methods = 1
     let g:go_highlight_structs = 1
-    let g:go_highlight_operators = 1
-    let g:go_highlight_build_constraints = 1
+    " let g:go_highlight_operators = 1
+    " let g:go_highlight_build_constraints = 1
 
     let g:go_fmt_fail_silently = 1
-    autocmd FileType go setlocal expandtab shiftwidth=4 tabstop=4 softtabstop=4
-    " let g:go_fmt_command = "goimports"
+    let g:go_fmt_command = "goimports"
     " let g:syntastic_go_checkers = ['golint', 'govet', 'errcheck']
 " }}}
 
@@ -603,7 +654,7 @@ call plug#end()
     let g:airline_symbols.linenr = '¶'
     let g:airline_symbols.branch = '⎇'
     function! AirlineInit()
-      let g:airline_section_a = airline#section#create(['(づ｡◕‿‿◕｡)づ', ' ', 'mode'])
+      let g:airline_section_a = airline#section#create(['ლ(╹◡╹ლ)', ' ', 'mode'])
       let g:airline_section_x = airline#section#create(['tagbar'])
       let g:airline_section_y = airline#section#create([''])
     endfunction
@@ -813,6 +864,20 @@ call plug#end()
     hi CtrlSpaceStatus   guifg=#839496 guibg=#002b36 gui=reverse term=reverse cterm=reverse ctermfg=12 ctermbg=8
 " }}}
 
+" vimStock {{{
+    nnoremap <leader>r :Refresh<CR>
+    nnoremap <leader>t :Stock<CR>
+
+" "}}}
+
+" JSON {
+    nmap <leader>jt <Esc>:%!python -m json.tool<CR><Esc>:set filetype=json<CR>
+    augroup jsonshow
+      au!
+      au FileType json set conceallevel=2
+      au FileType json let g:json_conceal="adgms"
+    augroup END
+" }
 
 " ale {{{
     let g:ale_linters = {
@@ -822,8 +887,12 @@ call plug#end()
                 \   'python' : ['flake8'],
                 \   'markdown' : ['mdl'],
                 \   'javascript' : ['eslint'],
+                \   'lua' : ['luacheck'],
+                \   'yaml' : ['yamllint -c ~/.yamllint'],
+                \   'go' : ['gometalinter', 'gofmt'],
                 \}
     " If emoji not loaded, use default sign
+    let g:ale_go_gometalinter_options = '--fast --exclude=""exported \\w+ (\\S*[.]*)([a-zA-Z.*]*) should have comment or be unexported""'
     try
         let g:ale_sign_warning = emoji#for('boom')
         let g:ale_sign_error = emoji#for('boom')
@@ -869,8 +938,8 @@ call plug#end()
     nmap <Leader>eN <Plug>(ale_previous)
 
 " }}}
-
 "========================== config for plugins end ======================================
+"
 
 " 被动技能
 "==========================================
@@ -949,6 +1018,4 @@ highlight clear SpellRare
 highlight SpellRare term=underline cterm=underline
 highlight clear SpellLocal
 highlight SpellLocal term=underline cterm=underline
-
-" json type
-autocmd FileType json autocmd BufWritePre <buffer> %!python -m json.tool
+autocmd Filetype json setlocal syntax=OFF expandtab shiftwidth=4 tabstop=4 softtabstop=4
